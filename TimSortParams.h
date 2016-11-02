@@ -39,7 +39,6 @@ public:
             n /= 2;
         }
         return n + flag;
-        //return 2;
     }
 
     virtual bool needMerge(int len_x, int len_y) const
@@ -63,7 +62,7 @@ public:
 
     virtual int getGallop() const
     {
-        return NO_GALLOPING_MODE;
+        return 7;
     }
 };
 

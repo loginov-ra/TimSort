@@ -149,7 +149,7 @@ void sortBlocks(RandomAccessIterator start, int arr_size, int block_len, int n_b
 }
 
 template <class RandomAccessIterator, class Compare>
-void inplaceMerge(Run<RandomAccessIterator> left, Run<RandomAccessIterator> right, Compare comp)
+void inplaceMerge(Run<RandomAccessIterator> left, Run<RandomAccessIterator> right, Compare comp, int gallop = NO_GALLOPING_MODE)
 {
     int arr_size = left.size + right.size;
     int forward_len = static_cast<int>(sqrt(arr_size));
@@ -193,7 +193,7 @@ void inplaceMerge(Run<RandomAccessIterator> left, Run<RandomAccessIterator> righ
         getBlockForward(left.start, i, forward_len, left_block, arr_size);
         getBlockForward(left.start, i + 1, forward_len, right_block, arr_size);
 
-        mergeRunsWithBuffer(left_block, right_block, buffer.start, comp, WM_SWAP_WRITE);
+        mergeRunsWithBuffer(left_block, right_block, buffer.start, comp, WM_SWAP_WRITE, gallop);
     }
 
     RandomAccessIterator finish = right.start + right.size;
@@ -209,7 +209,7 @@ void inplaceMerge(Run<RandomAccessIterator> left, Run<RandomAccessIterator> righ
         getBlockBackward(finish - backward_len, i + 1, backward_len, left_block, arr_size - backward_len);
         getBlockBackward(finish - backward_len, i, backward_len, right_block, arr_size - backward_len);
 
-        mergeRunsWithBuffer(left_block, right_block, finish - backward_len, comp, WM_SWAP_WRITE);
+        mergeRunsWithBuffer(left_block, right_block, finish - backward_len, comp, WM_SWAP_WRITE, gallop);
     }
 
     selectionSort(finish - backward_len, finish, comp, DefaultSwapper<ValueType>());
