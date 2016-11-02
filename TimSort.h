@@ -56,7 +56,7 @@ void insertionSort(RandomAccessIterator start, RandomAccessIterator finish, Comp
 template <class RandomAccessIterator>
 void insertionSort(RandomAccessIterator start, RandomAccessIterator finish)
 {
-    insertionSort(start, finish, std::less_equal<std::iterator_traits<RandomAccessIterator>::value_type>());
+    insertionSort(start, finish, std::less<std::iterator_traits<RandomAccessIterator>::value_type>());
 }
 
 template <class Run>
@@ -67,9 +67,9 @@ void popTo(stack<Run>& runs, Run& x)
 }
 
 template <class Run, class Compare>
-void replaceWithMerged(stack<Run>& runs, Run& left, Run& right, Compare comp)
+void replaceWithMerged(stack<Run>& runs, Run& left, Run& right, Compare comp, int gallop)
 {
-    inplaceMerge(left, right, comp);
+    inplaceMerge(left, right, comp, gallop);
     left.size += right.size;
     runs.push(left);
 }
@@ -82,6 +82,8 @@ void timSort(RandomAccessIterator start, RandomAccessIterator finish,
     divideArrayToRuns(start, finish, runs, comp, params);
     if (runs.size() < 2)
         return;
+
+    //cout << "NRuns: " << runs.size() << "\n";
 
     stack<Run<RandomAccessIterator>> run_stack;
     run_stack.push(runs[0]);
@@ -101,13 +103,13 @@ void timSort(RandomAccessIterator start, RandomAccessIterator finish,
             switch (merge_type)
             {
                 case WM_MERGE_XY:
-                    inplaceMerge(y, x, comp);
+                    inplaceMerge(y, x, comp, params.getGallop());
                     y.size += x.size;
                     x = y;
                     y = z;
                     break;
                 case WM_MERGE_YZ:
-                    inplaceMerge(z, y, comp);
+                    inplaceMerge(z, y, comp, params.getGallop());
                     z.size += y.size;
                     y = z;
                     break;
@@ -121,7 +123,7 @@ void timSort(RandomAccessIterator start, RandomAccessIterator finish,
         }
 
         if (params.needMerge(x.size, y.size))
-            replaceWithMerged(run_stack, y, x, comp);
+            replaceWithMerged(run_stack, y, x, comp, params.getGallop());
         else
         {
             run_stack.push(y);
@@ -134,7 +136,7 @@ void timSort(RandomAccessIterator start, RandomAccessIterator finish,
         Run<RandomAccessIterator> x, y;
         popTo(run_stack, x);
         popTo(run_stack, y);
-        replaceWithMerged(run_stack, y, x, comp);
+        replaceWithMerged(run_stack, y, x, comp, params.getGallop());
     }
 }
 
@@ -143,5 +145,5 @@ void timSort(RandomAccessIterator start, RandomAccessIterator finish,
              const ITimSortParams& params = DEFAULT_PARAMS)
 {
     timSort(start, finish, 
-            std::less_equal<typename std::iterator_traits<RandomAccessIterator>::value_type>(), params);
+            std::less<typename std::iterator_traits<RandomAccessIterator>::value_type>(), params);
 }
